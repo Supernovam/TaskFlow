@@ -1,4 +1,4 @@
-# Task Management Application API
+# Task Management Application API (aka TaskFlow)
 
 ## Overview
 This project is a RESTful API for a Task Management application, built with Java using Spring Boot. The API allows for managing tasks with basic CRUD (Create, Read, Update, Delete) operations.
