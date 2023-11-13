@@ -20,10 +20,10 @@ This project is a RESTful API for a Task Management application, built with Java
 ## Installation and Running the Application
 Ensure you have Java and Gradle installed on your system.
 1. Clone the repository: git clone https://github.com/Supernovam/TaskFlow.git
-2. Navigate to the project directory: cd taskmanager-api
-3.  Build the project:gradle build
-4.  Run the application: gradle bootRun
-5.  The application will start running on `http://localhost:8080`.
+2. Navigate to the project directory: cd TaskFlow
+3. Build the project:gradle build
+4. Run the application: gradle bootRun
+5. The application will start running on `http://localhost:8080`.
 
 ## API Endpoints
 | Method | Endpoint        | Description               |
