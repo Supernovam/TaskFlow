@@ -2,11 +2,11 @@ package com.nova.taskflow.controller;
 
 import com.nova.taskflow.model.Task;
 import com.nova.taskflow.service.TaskService;
+import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -15,9 +15,9 @@ public class TaskController {
 
     private final TaskService taskService;
 
-    // Create a new task
-    @PostMapping
-    public ResponseEntity<Task> createTask(@RequestBody Task task) {
+  // Create a new task
+  @PostMapping
+  public ResponseEntity<Task> createTask(@Valid @RequestBody Task task) {
         return ResponseEntity.ok(taskService.createTask(task));
     }
 
@@ -34,9 +34,10 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getAllTasks());
     }
 
-    // Update a task
-    @PutMapping("/{id}")
-    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task taskDetails) {
+  // Update a task
+  @PutMapping("/{id}")
+  public ResponseEntity<Task> updateTask(
+      @PathVariable Long id, @Valid @RequestBody Task taskDetails) {
         Task updatedTask = taskService.updateTask(id, taskDetails);
         return ResponseEntity.ok(updatedTask);
     }
