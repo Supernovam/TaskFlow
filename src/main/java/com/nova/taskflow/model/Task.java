@@ -15,18 +15,17 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class Task {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-  @NotBlank(message = "Title can not be blank.")
-  @Size(max = 150, message = "Title must be 150 characters or less.")
+  @NotBlank
+  @Size(max = 150)
   private String title;
 
-    private String description;
+  private String description;
 
-  @FutureOrPresent(message = "Due date must be in the present or future.")
-  private Instant dueDate;
+  @FutureOrPresent private Instant dueDate;
 
-    private boolean completed;
+  private boolean isCompleted;
 }

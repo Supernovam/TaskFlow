@@ -8,6 +8,9 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
@@ -31,68 +34,94 @@ public class TaskValidationTest {
   }
 
   @Test
-  public void testTitleNotBlank() {
-    Task task = new Task();
-    task.setTitle(""); // blank title
-    task.setDescription("Sample Description");
-    task.setDueDate(null);
-    task.setCompleted(false);
-
+  public void testTitleIsNotBlank() {
+    // Arrange
+    Task task = createTestTask("", "Sample Description", null, false);
+    // Act
     Set<ConstraintViolation<Task>> violations = validator.validate(task);
+    // Assert
     assertFalse(violations.isEmpty());
-    assertTrue(violations.stream().anyMatch(v -> v.getMessage().equals("Title can not be blank.")));
-  }
-
-  @Test
-  public void testTitleLength() {
-    Task task = new Task();
-    task.setTitle("a".repeat(151)); // title longer than 150 characters
-    task.setDescription("Sample Description");
-    task.setDueDate(null);
-    task.setCompleted(false);
-
-    Set<ConstraintViolation<Task>> violations = validator.validate(task);
-    assertFalse(violations.isEmpty());
-    assertTrue(
+    boolean hasNoBlankViolation =
         violations.stream()
-            .anyMatch(v -> v.getMessage().equals("Title must be 150 characters or less.")));
+            .anyMatch(
+                violation ->
+                    violation
+                        .getConstraintDescriptor()
+                        .getAnnotation()
+                        .annotationType()
+                        .equals(NotBlank.class));
+    assertTrue(hasNoBlankViolation);
   }
 
   @Test
-  public void testDescriptionNotNull() {
-    Task task = new Task();
-    task.setTitle("Valid Title");
-    task.setDescription(null); // null description
-    task.setDueDate(Instant.now());
-    task.setCompleted(false);
-
+  public void testTitleIsWithinLengthRange() {
+    // Arrange
+    Task task = createTestTask("a".repeat(151), "Sample Description", null, false);
+    // Act
     Set<ConstraintViolation<Task>> violations = validator.validate(task);
+    // Assert
     assertFalse(violations.isEmpty());
-    // TODO: specific validation message
+    boolean hasSizeViolation =
+        violations.stream()
+            .anyMatch(
+                violation ->
+                    violation
+                        .getConstraintDescriptor()
+                        .getAnnotation()
+                        .annotationType()
+                        .equals(Size.class));
+    assertTrue(hasSizeViolation);
   }
 
   @Test
-  public void testDueDateInFuture() {
-    Task task = new Task();
-    task.setTitle("Valid Title");
-    task.setDescription("Valid Description");
-    task.setDueDate(Instant.now().minus(1, DAYS)); // Due date in the past
-    task.setCompleted(false);
-
+  public void testDescriptionCanBeNull() {
+    // Arrange
+    Task task = createTestTask("Valid Title", null, Instant.now().plusSeconds(86400), false);
+    // Act
     Set<ConstraintViolation<Task>> violations = validator.validate(task);
-    assertFalse(violations.isEmpty());
-    // TODO: specific validation message
-  }
-
-  @Test
-  public void testNoViolationsWithValidData() {
-    Task task = new Task();
-    task.setTitle("Valid Title");
-    task.setDescription("Valid Description");
-    task.setDueDate(Instant.now().plusSeconds(86400)); // Valid due date in the future
-    task.setCompleted(false);
-
-    Set<ConstraintViolation<Task>> violations = validator.validate(task);
+    // Assert
     assertTrue(violations.isEmpty());
+  }
+
+  @Test
+  public void testDueDateIsWithinAllowedRange() {
+    // Arrange
+    Task task =
+        createTestTask("Valid Title", "Valid Description", Instant.now().minus(1, DAYS), false);
+    // Act
+    Set<ConstraintViolation<Task>> violations = validator.validate(task);
+    // Assert
+    assertFalse(violations.isEmpty());
+    boolean hasFutureOrPresentViolation =
+        violations.stream()
+            .anyMatch(
+                violation ->
+                    violation
+                        .getConstraintDescriptor()
+                        .getAnnotation()
+                        .annotationType()
+                        .equals(FutureOrPresent.class));
+    assertTrue(hasFutureOrPresentViolation);
+  }
+
+  @Test
+  public void testNoViolationsWhenValidData() {
+    // Arrange
+    Task task =
+        createTestTask("Valid Title", "Valid Description", Instant.now().plusSeconds(86400), false);
+    // Act
+    Set<ConstraintViolation<Task>> violations = validator.validate(task);
+    // Assert
+    assertTrue(violations.isEmpty());
+  }
+
+  private Task createTestTask(
+      String title, String description, Instant dueDate, boolean completed) {
+    Task task = new Task();
+    task.setTitle(title);
+    task.setDescription(description);
+    task.setDueDate(dueDate);
+    task.setCompleted(completed);
+    return task;
   }
 }
